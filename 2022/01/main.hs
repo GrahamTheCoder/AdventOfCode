@@ -16,12 +16,17 @@ getElfWithMostCalories :: [String] -> Int
 getElfWithMostCalories = foldl max 0 . getCaloriesPerElf
 
 sumElvesWithMostCalories :: Int -> [String] -> Int
-sumElvesWithMostCalories nElves inputLines = sum (take nElves (sortBy (comparing Down) (getCaloriesPerElf inputLines)))
+sumElvesWithMostCalories nElves inputLines = 
+    let sortDesc = sortBy $ comparing Down
+        caloriesPerElfDesc = sortDesc $ getCaloriesPerElf inputLines
+    in sum $ take nElves caloriesPerElfDesc
 
 main :: IO Int
 main = do
     contents <- readFile "input.txt"
     let inputLines = lines contents
     let mostCalories = getElfWithMostCalories inputLines
+    let top3MostCalories = sumElvesWithMostCalories 3 inputLines
     putStrLn $ show mostCalories
-    return mostCalories
+    putStrLn $ show top3MostCalories
+    return top3MostCalories
