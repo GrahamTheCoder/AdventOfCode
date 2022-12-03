@@ -3,14 +3,15 @@ import Data.Char
 import Text.Read
 
 sumElf :: [Int] -> Maybe Int -> [Int]
-sumElf elves Nothing = 0:elves
+sumElf elves Nothing = 0 : elves
 sumElf [] (Just calories) = [calories]
-sumElf (current:rest) (Just calories) = (current+calories):rest
+sumElf (current : rest) (Just calories) = (current + calories) : rest
+
+getCaloriesPerElf :: [String] -> [Int]
+getCaloriesPerElf = foldl sumElf [] . map readMaybe
 
 getElfWithMostCalories :: [String] -> Int
-getElfWithMostCalories inputLines = 
-    let caloriesPerElf = foldl sumElf [] $ map readMaybe inputLines
-    in foldl max 0 caloriesPerElf
+getElfWithMostCalories = foldl max 0 . getCaloriesPerElf
 
 main :: IO Int
 main = do
