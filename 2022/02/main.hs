@@ -15,7 +15,9 @@ getScoreFromOpponentAndMine (o, m)
     | otherwise = 1 + m
 
 getScoreFromOpponentAndStrat :: (Int, Int) -> Int
-getScoreFromOpponentAndStrat (o, s) = 1 + s*3 + mod (o + s - 1) 3
+getScoreFromOpponentAndStrat (o, 0) = 1 + mod (o - 1) 3
+getScoreFromOpponentAndStrat (o, 1) = 4 + o
+getScoreFromOpponentAndStrat (o, 2) = 7 + mod (o + 1) 3
 
 main :: IO Int
 main = do
