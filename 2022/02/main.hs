@@ -4,19 +4,18 @@ import Data.List
 import Data.Ord
 import Text.Read
 
+-- 0 for Rock/Loss, 1 for Paper/Draw, 2 for Scissors/Win
 decrypt :: [Char] -> (Int, Int)
-decrypt [o, ' ', m] = (1 + (ord o) - (ord 'A'), 1 + (ord m) - (ord 'X'))
+decrypt [o, ' ', m] = ((ord o) - (ord 'A'), (ord m) - (ord 'X'))
 
 getScoreFromOpponentAndMine :: (Int, Int) -> Int
 getScoreFromOpponentAndMine (o, m)
-    | o == m = 3 + m
-    | m - 1 == o || m + 2 == o = 6 + m
-    | otherwise = 0 + m
+    | o == m = 4 + m
+    | mod (m - 1) 3 == o = 7 + m
+    | otherwise = 1 + m
 
 getScoreFromOpponentAndStrat :: (Int, Int) -> Int
-getScoreFromOpponentAndStrat (o, 1) = 1 + mod (o - 2) 3
-getScoreFromOpponentAndStrat (o, 2) = 3 + o
-getScoreFromOpponentAndStrat (o, 3) = 6 + 1 + mod o 3
+getScoreFromOpponentAndStrat (o, s) = 1 + s*3 + mod (o + s - 1) 3
 
 main :: IO Int
 main = do
