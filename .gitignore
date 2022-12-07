@@ -422,3 +422,4 @@ cabal.project.local~
 .HTF/
 .ghc.environment.*
 *.exe
+*.lock
