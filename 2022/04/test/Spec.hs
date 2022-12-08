@@ -1,15 +1,17 @@
 import Test.Hspec
 import Test.QuickCheck
-import Control.Exception (evaluate)
+import Lib
 
 main :: IO ()
 main = hspec $ do
-  describe "Prelude.head" $ do
-    it "returns the first element of a list" $ do
-      head [23 ..] `shouldBe` (23 :: Int)
+  describe "parseLine" $ do
+    it "works for 2-4,6-8" $ do
+      parseLine "2-4,6-8" `shouldBe` [(2,4),(6,8)]
 
-    it "returns the first element of an *arbitrary* list" $
-      property $ \x xs -> head (x:xs) == (x :: Int)
-
-    it "throws an exception if used with an empty list" $ do
-      evaluate (head []) `shouldThrow` anyException
+    it "parses lines of non-negative start and length" $ do
+      property $ \a b c d -> let
+        a' = abs a
+        b' = abs b
+        c' = abs c
+        d' = abs d
+        in parseLine (show a' ++ "-" ++ show (a'+b') ++ "," ++ show c' ++ "-" ++ show (c'+d')) == [(a',a'+b'),(c',c'+d')]
