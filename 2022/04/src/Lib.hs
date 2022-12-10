@@ -1,14 +1,13 @@
 module Lib
-    ( parseLine, fullOverlap
+    ( parseLine, fullyOverlap, countFullyOverlapping, countFullyOverlappingFromText
     ) where
 
 
-import Control.Monad
-import Data.Char
 import Data.List
 import Data.List.Split
 import Data.Ord
 import Data.Maybe
+import GHC.Utils.Misc
 import Text.Read
 
 tupleFromTwoList :: [a] -> (a, a)
@@ -22,5 +21,20 @@ parseLine line =
     let elves = splitOn "," line
     in tupleFromTwoList $ fmap (tupleFromTwoList . parseRange) elves
 
-fullOverlap :: Ord a => Eq a => (a, a) -> (a, a) -> Bool
-fullOverlap (a, b) (c, d) = a >= c && b <= d || c >= a && d <= b
+fullyOverlap :: Ord a => Eq a => (a, a) -> (a, a) -> Bool
+fullyOverlap (a, b) (c, d) = a >= c && b <= d || c >= a && d <= b
+
+
+partlyOverlap :: Ord a => Eq a => (a, a) -> (a, a) -> Bool
+partlyOverlap (a, b) (c, d) = a >= c && b <= d || c >= a && d <= b
+
+tuplFunc :: (t1 -> t2 -> t3) -> (t1, t2) -> t3
+tuplFunc f (a,b) = f a b
+
+countFullyOverlapping :: [String] -> Int
+countFullyOverlapping s = 
+    let pairs = fmap parseLine s
+        tuplOverlap = tuplFunc fullyOverlap
+    in count tuplOverlap pairs
+
+countFullyOverlappingFromText s = countFullyOverlapping (lines s)

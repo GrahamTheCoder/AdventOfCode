@@ -37,6 +37,7 @@ library:
   source-dirs: src
   dependencies:
   - split
+  - ghc
 
 executables:
   AoC04-exe:
