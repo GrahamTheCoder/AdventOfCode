@@ -37,6 +37,7 @@ library:
   source-dirs: src
   dependencies:
   - split
+  - range
 
 executables:
   AoC04-exe:
