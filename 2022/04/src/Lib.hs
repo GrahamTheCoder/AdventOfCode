@@ -1,5 +1,5 @@
 module Lib
-    ( parseLine, fullyOverlap, countFullyOverlapping, countFullyOverlappingFromText
+    ( parseLine, fullyOverlap, countFullyOverlappingFromText, partlyOverlap, countPartlyOverlapping, countPartlyOverlappingFromText
     ) where
 
 
@@ -26,7 +26,7 @@ fullyOverlap (a, b) (c, d) = a >= c && b <= d || c >= a && d <= b
 
 
 partlyOverlap :: Ord a => Eq a => (a, a) -> (a, a) -> Bool
-partlyOverlap (a, b) (c, d) = a >= c && b <= d || c >= a && d <= b
+partlyOverlap (a, b) (c, d) = a >= c && a <= d || b >= c && b <= d || a <= c && b >= c || a <= d && b >= d
 
 tuplFunc :: (t1 -> t2 -> t3) -> (t1, t2) -> t3
 tuplFunc f (a,b) = f a b
@@ -37,4 +37,14 @@ countFullyOverlapping s =
         tuplOverlap = tuplFunc fullyOverlap
     in count tuplOverlap pairs
 
+countPartlyOverlapping :: [String] -> Int
+countPartlyOverlapping s = 
+    let pairs = fmap parseLine s
+        tuplOverlap = tuplFunc partlyOverlap
+    in count tuplOverlap pairs
+
+countFullyOverlappingFromText :: String -> Int
 countFullyOverlappingFromText s = countFullyOverlapping (lines s)
+
+countPartlyOverlappingFromText :: String -> Int
+countPartlyOverlappingFromText s = countPartlyOverlapping (lines s)
