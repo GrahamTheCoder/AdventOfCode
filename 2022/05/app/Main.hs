@@ -4,6 +4,8 @@ import Lib
 
 main :: IO ()
 main = do
-    contents <- readFile "example.txt"
-    putStrLn $ show $ parseFile contents
+    contents <- readFile "input.txt"
+    --putStrLn $ show $ parseFile contents
+    putStrLn $ show $ solvePartOne contents
+    putStrLn $ show $ solvePartTwo contents
     return ()
