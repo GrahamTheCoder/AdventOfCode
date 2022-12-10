@@ -17,7 +17,6 @@ license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
-    CHANGELOG.md
 
 source-repository head
   type: git
@@ -27,7 +26,7 @@ library
   exposed-modules:
       Lib
   other-modules:
-      Paths_AoC04
+      Paths_AoC05
   hs-source-dirs:
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
@@ -37,28 +36,28 @@ library
     , split
   default-language: Haskell2010
 
-executable AoC04-exe
+executable AoC05-exe
   main-is: Main.hs
   other-modules:
-      Paths_AoC04
+      Paths_AoC05
   hs-source-dirs:
       app
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      AoC04
+      AoC05
     , base >=4.7 && <5
   default-language: Haskell2010
 
-test-suite AoC04-test
+test-suite AoC05-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Paths_AoC04
+      Paths_AoC05
   hs-source-dirs:
       test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      AoC04
+      AoC05
     , HUnit
     , QuickCheck
     , base >=4.7 && <5
