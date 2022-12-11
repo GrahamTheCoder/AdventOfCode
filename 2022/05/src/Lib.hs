@@ -6,12 +6,6 @@ module Lib
 import Data.List
 import Data.List.Split
 
-tuplFunc :: (t1 -> t2 -> t3) -> (t1, t2) -> t3
-tuplFunc f (a,b) = f a b
-
-parseRange :: String -> [Int]
-parseRange rangeStr = fmap read (splitOn "-" rangeStr)
-
 parseInstructionWords :: [String] -> (Int, Int, Int)
 parseInstructionWords (_:n:_:source:_:destination:[]) = (read n, read source, read destination)
 
@@ -53,11 +47,14 @@ applyInstruction maxCrates (stacks, (n, source, dest):rest) =
         newStacks = pushN dest toMove tempStacks
         newInstructions = if n > maxCrates then (n-maxCrates, source, dest):rest else rest
     in (newStacks, newInstructions)
+applyInstruction _ x = x
 
 applyInstructions :: ((a1, [a2]) -> (a1, [a2])) -> (a1, [a2]) -> a1
 applyInstructions _ (stacks, []) = stacks
 applyInstructions applyOne stacksAndInstructions = applyInstructions applyOne $ applyOne stacksAndInstructions
 
-
+solvePartOne :: String -> [Char]
 solvePartOne contents = fmap head $ applyInstructions (applyInstruction 1) $ parseFile contents
+
+solvePartTwo :: String -> [Char]
 solvePartTwo contents = fmap head $ applyInstructions (applyInstruction 1000) $ parseFile contents
