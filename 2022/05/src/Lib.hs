@@ -54,10 +54,10 @@ applyInstruction maxCrates (stacks, (n, source, dest):rest) =
         newInstructions = if n > maxCrates then (n-maxCrates, source, dest):rest else rest
     in (newStacks, newInstructions)
 
-applyInstructions :: Int -> ([[Char]], [(Int, Int, Int)]) -> [[Char]]
-applyInstructions maxCrates (stacks, []) = stacks
-applyInstructions maxCrates stacksAndInstructions = applyInstructions maxCrates $ applyInstruction maxCrates stacksAndInstructions
+applyInstructions :: ((a1, [a2]) -> (a1, [a2])) -> (a1, [a2]) -> a1
+applyInstructions _ (stacks, []) = stacks
+applyInstructions applyOne stacksAndInstructions = applyInstructions applyOne $ applyOne stacksAndInstructions
 
 
-solvePartOne contents = fmap head $ applyInstructions 1 $ parseFile contents
-solvePartTwo contents = fmap head $ applyInstructions 1000 $ parseFile contents
+solvePartOne contents = fmap head $ applyInstructions (applyInstruction 1) $ parseFile contents
+solvePartTwo contents = fmap head $ applyInstructions (applyInstruction 1000) $ parseFile contents

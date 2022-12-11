@@ -35,7 +35,7 @@ main = hspec $ do
   describe "applyInstructions" $ do
     it "should handle example" $ do
       contents <- readFile "example.txt"
-      applyInstructions 1 (["NZ","DCM","P"],[(1,2,1),(3,1,3),(2,2,1),(1,1,2)]) `shouldBe` ["C","M","ZNDP"]
+      applyInstructions (applyInstruction 1) (["NZ","DCM","P"],[(1,2,1),(3,1,3),(2,2,1),(1,1,2)]) `shouldBe` ["C","M","ZNDP"]
       
   describe "solvePartOne" $ do
     it "should handle example" $ do
