@@ -1,4 +1,4 @@
-name:                AoC04
+name:                AoC06
 version:             0.1.0.0
 github:              "GrahamTheCoder/AdventOfCode"
 license:             BSD3
@@ -8,6 +8,7 @@ copyright:           "Graham Helliwell"
 
 extra-source-files:
 - README.md
+- CHANGELOG.md
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -34,12 +35,9 @@ ghc-options:
 
 library:
   source-dirs: src
-  dependencies:
-  - split
-  - ghc
 
 executables:
-  AoC04-exe:
+  AoC06-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -47,10 +45,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - AoC04
+    - AoC06
 
 tests:
-  AoC04-test:
+  AoC06-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -58,9 +56,4 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - AoC04
-    - QuickCheck
-    - HUnit
-    - hspec
-    - hspec-contrib
-
+    - AoC06

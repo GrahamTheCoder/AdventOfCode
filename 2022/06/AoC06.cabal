@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 
-name:           AoC04
+name:           AoC06
 version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/GrahamTheCoder/AdventOfCode#readme>
 homepage:       https://github.com/GrahamTheCoder/AdventOfCode#readme
@@ -17,6 +17,7 @@ license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
+    CHANGELOG.md
 
 source-repository head
   type: git
@@ -26,41 +27,35 @@ library
   exposed-modules:
       Lib
   other-modules:
-      Paths_AoC04
+      Paths_AoC06
   hs-source-dirs:
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
-    , ghc
-    , split
   default-language: Haskell2010
 
-executable AoC04-exe
+executable AoC06-exe
   main-is: Main.hs
   other-modules:
-      Paths_AoC04
+      Paths_AoC06
   hs-source-dirs:
       app
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      AoC04
+      AoC06
     , base >=4.7 && <5
   default-language: Haskell2010
 
-test-suite AoC04-test
+test-suite AoC06-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Paths_AoC04
+      Paths_AoC06
   hs-source-dirs:
       test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      AoC04
-    , HUnit
-    , QuickCheck
+      AoC06
     , base >=4.7 && <5
-    , hspec
-    , hspec-contrib
   default-language: Haskell2010
