@@ -57,5 +57,9 @@ test-suite AoC06-test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       AoC06
+    , HUnit
+    , QuickCheck
     , base >=4.7 && <5
+    , hspec
+    , hspec-contrib
   default-language: Haskell2010

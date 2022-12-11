@@ -57,3 +57,7 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - AoC06
+    - QuickCheck
+    - HUnit
+    - hspec
+    - hspec-contrib
