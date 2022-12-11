@@ -3,4 +3,8 @@ module Main (main) where
 import Lib
 
 main :: IO ()
-main = someFunc
+main = do
+    contents <- readFile "input.txt"
+    putStrLn $ show $ endOfFirstUniqueRun 4 contents
+    return ()
+
