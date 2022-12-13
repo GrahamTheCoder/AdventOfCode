@@ -1,5 +1,5 @@
 module Lib
-    ( totalSizeOfDirectoriesBelow, getDirectorySizes, splitCommands, parseCommand
+    ( totalSizeOfDirectoriesBelow, smallestDirectoryToDelete, getDirectorySizes, splitCommands, parseCommand
     ) where
 
 import qualified Data.Map as Map
@@ -43,5 +43,9 @@ getDirectorySizes str =
     let (root, _) = foldl interpretCommand ((Directory Map.empty), []) $ parseCommands str
     in fmap getSize $ getDirectories root
 
-totalSizeOfDirectoriesBelow sizeLimit str =
-    sum $ filter (\d -> d <= sizeLimit) $ getDirectorySizes str
+totalSizeOfDirectoriesBelow sizeLimit str = sum $ filter (\d -> d <= sizeLimit) $ getDirectorySizes str
+
+smallestDirectoryToDelete totalCapacity requiredFree str = 
+    let dirSizes = getDirectorySizes str
+        toFree = requiredFree - (totalCapacity - (head dirSizes))
+    in minimum $ filter (\x -> x >= toFree) dirSizes
