@@ -35,6 +35,11 @@ ghc-options:
 
 library:
   source-dirs: src
+  dependencies: 
+  - astar
+  - split
+  - MissingH
+  - unordered-containers
 
 executables:
   AoC19-exe:

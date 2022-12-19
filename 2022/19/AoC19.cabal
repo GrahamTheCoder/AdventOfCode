@@ -32,7 +32,11 @@ library
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
-      base >=4.7 && <5
+      MissingH
+    , astar
+    , base >=4.7 && <5
+    , split
+    , unordered-containers
   default-language: Haskell2010
 
 executable AoC19-exe
@@ -57,5 +61,9 @@ test-suite AoC19-test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       AoC19
+    , HUnit
+    , QuickCheck
     , base >=4.7 && <5
+    , hspec
+    , hspec-contrib
   default-language: Haskell2010
