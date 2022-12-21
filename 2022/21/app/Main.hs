@@ -5,4 +5,4 @@ import Lib
 main :: IO ()
 main = do
     contents <- readFile "input.txt"
-    putStrLn $ show $ createTree (lines contents)
+    putStrLn $ show $ getRootValue (lines contents)

@@ -36,6 +36,7 @@ ghc-options:
 library:
   source-dirs: src
   dependencies:
+  - MissingH
   - split
   - unordered-containers
 
