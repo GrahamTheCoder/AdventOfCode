@@ -27,3 +27,6 @@ main = hspec $ do
     it "should calculate quality for example 1" $ do
       contents <- readFile "example.txt"
       sumOfQualityLevels 24 (lines contents) `shouldBe` 33
+    it "should calculate quality for part 1" $ do
+      contents <- readFile "input.txt"
+      sumOfQualityLevels 24 (lines contents) `shouldBe` 1725

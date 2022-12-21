@@ -39,6 +39,7 @@ library:
   - astar
   - split
   - MissingH
+  - parallel
   - unordered-containers
 
 executables:

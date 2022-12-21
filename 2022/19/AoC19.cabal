@@ -35,6 +35,7 @@ library
       MissingH
     , astar
     , base >=4.7 && <5
+    , parallel
     , split
     , unordered-containers
   default-language: Haskell2010
