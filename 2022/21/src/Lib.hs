@@ -1,5 +1,5 @@
 module Lib
-    ( getRootValue
+    ( getValue
     ) where
 
 import qualified Data.HashMap.Strict as HashMap
@@ -39,4 +39,4 @@ recursivelyEvaluate namedExpressions name =
       evaluate (Division x y) = (evaluate x) `div` (evaluate y)
   in evaluateName name
 
-getRootValue unparsedLines = recursivelyEvaluate (HashMap.fromList $ fmap parseLine unparsedLines) "root"
+getValue unparsedLines name = recursivelyEvaluate (HashMap.fromList $ fmap parseLine unparsedLines) name

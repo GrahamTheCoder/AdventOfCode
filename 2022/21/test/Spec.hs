@@ -4,7 +4,17 @@ import Test.QuickCheck
 
 main :: IO ()
 main = hspec $ do
-  describe "getRootValue" $ do
+  describe "getValue" $ do
     it "works for example 1" $ do
       contents <- readFile "example.txt"
-      getRootValue (lines contents) `shouldBe` 152
+      getValue (lines contents) "root" `shouldBe` 152
+    it "works for input 1 root" $ do
+      contents <- readFile "input.txt"
+      getValue (lines contents) "root" `shouldBe` 299983725663456
+    it "works for input 1 lttc" $ do
+      contents <- readFile "input.txt"
+      getValue (lines contents) "lttc" `shouldBe` 210322230761488
+    it "works for input 1 pfjc" $ do
+      contents <- readFile "input.txt"
+      getValue (lines contents) "pfjc" `shouldBe` 89661494901968
+    

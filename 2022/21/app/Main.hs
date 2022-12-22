@@ -5,4 +5,4 @@ import Lib
 main :: IO ()
 main = do
     contents <- readFile "input.txt"
-    putStrLn $ show $ getRootValue (lines contents)
+    putStrLn $ show $ getValue (lines contents) "root"
