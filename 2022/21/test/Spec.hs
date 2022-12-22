@@ -22,4 +22,7 @@ main = hspec $ do
     it "works for example 1" $ do
       contents <- readFile "example.txt"
       partTwo (lines contents) "root" `shouldBe` 301
+    it "works for input 1 root" $ do
+      contents <- readFile "input.txt"
+      partTwo (lines contents) "root" `shouldBe` 3093175982595
     

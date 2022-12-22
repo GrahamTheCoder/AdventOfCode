@@ -18,7 +18,7 @@ data Expr
 instance Show Expr where
     show (Int x) = (show x)
     show (Var x) = (show x)
-    show (BinaryInvertible x y _ _ infixOpString c) = "(" ++ (show x) ++ " " ++ infixOpString ++ " " ++ (show y) ++ ")"
+    show (BinaryInvertible x y _ _ infixOpString _) = "(" ++ (show x) ++ " " ++ infixOpString ++ " " ++ (show y) ++ ")"
     show (Equals x y) = (show x) ++ " == " ++ (show y)
 
 parseExpr :: [String] -> Expr
@@ -40,9 +40,9 @@ parse unparsedLines = HashMap.fromList $ fmap parseLine unparsedLines
 
 evaluateWherePossible :: HashMap.HashMap String Expr -> String -> Expr
 evaluateWherePossible namedExpressions name =
-  let evaluate (Var name) = case HashMap.lookup name namedExpressions of
+  let evaluate (Var varName) = case HashMap.lookup varName namedExpressions of
           Just x -> evaluate x
-          Nothing -> Var name
+          Nothing -> Var varName
       evaluate (BinaryInvertible x y op inverseOp str isCommutative) = case (evaluate x, evaluate y) of
         (Int lhs, Int rhs) -> Int (lhs `op` rhs)
         (Int lhs, rhs) -> BinaryInvertible (Int lhs) rhs op inverseOp str isCommutative
