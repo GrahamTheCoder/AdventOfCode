@@ -6,7 +6,7 @@ import qualified Data.HashMap.Strict as HashMap
 import Data.List.Split
 import Data.String.Utils
 import Data.Maybe
-import Debug.Trace
+import Debug.Trace -- To hide the rearrangement steps, switch this to Debug.NoTrace
 
 data Expr
   = Int Int
