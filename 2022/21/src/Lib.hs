@@ -1,42 +1,80 @@
 module Lib
-    ( getValue
+    ( getValue, partTwo
     ) where
 
 import qualified Data.HashMap.Strict as HashMap
 import Data.List.Split
 import Data.String.Utils
 import Data.Maybe
+import Debug.Trace
 
 data Expr
   = Int Int
   | Var String
-  | Sum      Expr Expr
-  | Subtr    Expr Expr
-  | Product  Expr Expr
-  | Division Expr Expr
-  deriving (Eq, Ord, Show)
+  -- Bool is for commutativity
+  | BinaryInvertible Expr Expr (Int -> Int -> Int) (Int -> Int -> Int) String Bool
+  | Equals Expr Expr
 
+instance Show Expr where
+    show (Int x) = (show x)
+    show (Var x) = (show x)
+    show (BinaryInvertible x y _ _ infixOpString c) = "(" ++ (show x) ++ " " ++ infixOpString ++ " " ++ (show y) ++ ")"
+    show (Equals x y) = (show x) ++ " == " ++ (show y)
+
+parseExpr :: [String] -> Expr
 parseExpr (l:[]) = case (maybeRead l :: Maybe Int) of
     Just num -> Int num
     _ -> Var l
-parseExpr (l:"+":r) = Sum (parseExpr [l]) (parseExpr r)
-parseExpr (l:"-":r) = Subtr (parseExpr [l]) (parseExpr r)
-parseExpr (l:"*":r) = Product (parseExpr [l]) (parseExpr r)
-parseExpr (l:"/":r) = Division (parseExpr [l]) (parseExpr r)
+parseExpr (l:"+":r) = BinaryInvertible (parseExpr [l]) (parseExpr r) (+) (-) "+" True
+parseExpr (l:"-":r) = BinaryInvertible (parseExpr [l]) (parseExpr r) (-) (+) "-" False
+parseExpr (l:"*":r) = BinaryInvertible (parseExpr [l]) (parseExpr r) (*) (div) "*" True
+parseExpr (l:"/":r) = BinaryInvertible (parseExpr [l]) (parseExpr r) (div) (*) "/" False
 
+parseLine :: String -> (String, Expr)
 parseLine line = 
     let (name:expr:_) = splitOn ": " line
     in (name, parseExpr (splitOn " " expr))
 
-recursivelyEvaluate :: (HashMap.HashMap String Expr -> String -> Int)
-recursivelyEvaluate namedExpressions name =
-  let evaluateName name = evaluate $ fromJust $ HashMap.lookup name namedExpressions
-      evaluate (Int x) = x
-      evaluate (Var x) = evaluateName x
-      evaluate (Sum x y) = (evaluate x) + (evaluate y)
-      evaluate (Subtr x y) = (evaluate x) - (evaluate y)
-      evaluate (Product x y) = (evaluate x) * (evaluate y)
-      evaluate (Division x y) = (evaluate x) `div` (evaluate y)
-  in evaluateName name
+parse :: [String] -> HashMap.HashMap [Char] Expr
+parse unparsedLines = HashMap.fromList $ fmap parseLine unparsedLines
 
-getValue unparsedLines name = recursivelyEvaluate (HashMap.fromList $ fmap parseLine unparsedLines) name
+evaluateWherePossible :: HashMap.HashMap String Expr -> String -> Expr
+evaluateWherePossible namedExpressions name =
+  let evaluate (Var name) = case HashMap.lookup name namedExpressions of
+          Just x -> evaluate x
+          Nothing -> Var name
+      evaluate (BinaryInvertible x y op inverseOp str isCommutative) = case (evaluate x, evaluate y) of
+        (Int lhs, Int rhs) -> Int (lhs `op` rhs)
+        (Int lhs, rhs) -> BinaryInvertible (Int lhs) rhs op inverseOp str isCommutative
+        (lhs, Int rhs) -> BinaryInvertible lhs (Int rhs) op inverseOp str isCommutative
+      evaluate (Equals lhs rhs) = Equals (evaluate lhs) (evaluate rhs)
+      evaluate x = x
+  in evaluate (Var name)
+
+getValue :: [String] -> String -> Int
+getValue unparsedLines name = 
+  let (Int answer) = evaluateWherePossible (parse unparsedLines) name
+  in answer
+
+rearrangeVariableToLhs :: Expr -> Expr
+rearrangeVariableToLhs (Equals (Int lhs) rhs) = rearrangeVariableToLhs (Equals rhs (Int lhs))
+rearrangeVariableToLhs (Equals (Var lhs) (Int rhs)) = Equals (Var lhs) (Int rhs)
+rearrangeVariableToLhs (Equals (BinaryInvertible (Int x) y op invertOp  _ isCommutative) (Int rhs)) = 
+  let intValue = if isCommutative then rhs `invertOp` x  else x `op` rhs
+  in Equals y (Int intValue)
+rearrangeVariableToLhs (Equals (BinaryInvertible x (Int y) _ invertOp _ _) (Int rhs)) =
+  Equals x (Int (rhs `invertOp` y))
+
+partTwo :: [String] -> String -> Int
+partTwo unparsedLines name =
+  let namedExpressions = parse unparsedLines
+      (BinaryInvertible rootLhs rootRhs _ _ _ _) = fromJust $ HashMap.lookup name namedExpressions
+      updatedExpressions = HashMap.insert name (Equals rootLhs rootRhs) $ HashMap.delete "humn" namedExpressions
+      initialTree = evaluateWherePossible updatedExpressions name
+      rearrangeVariableToLhs' tree =
+        let newTree = rearrangeVariableToLhs tree
+        in trace (show newTree) newTree
+      getAnswer (Equals (Var _) (Int y)) = Just y
+      getAnswer _ = Nothing
+      answer = fromJust $ getAnswer $ until (isJust.getAnswer) rearrangeVariableToLhs' initialTree
+  in answer

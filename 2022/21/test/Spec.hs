@@ -17,4 +17,9 @@ main = hspec $ do
     it "works for input 1 pfjc" $ do
       contents <- readFile "input.txt"
       getValue (lines contents) "pfjc" `shouldBe` 89661494901968
+      
+  describe "partTwo" $ do
+    it "works for example 1" $ do
+      contents <- readFile "example.txt"
+      partTwo (lines contents) "root" `shouldBe` 301
     
