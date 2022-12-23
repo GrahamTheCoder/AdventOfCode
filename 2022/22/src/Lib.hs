@@ -13,7 +13,7 @@ import Text.Megaparsec (Parsec)
 import qualified Text.Megaparsec as M
 import qualified Text.Megaparsec.Char as M
 import qualified Text.Megaparsec.Char.Lexer as L
-import Debug.Trace (traceShowId)
+import Debug.Trace (traceShow, traceShowId)
 
 type MParser = Parsec Void String
 
@@ -63,8 +63,8 @@ boardMap = do
   return (mapLines, movements)
 
 -- I'm not really sure why this returns a list rather than just one
-parseBoardMap :: String -> [Instructions]
-parseBoardMap fileContents = case M.runParser boardMap "" fileContents of
+parseInstructions :: String -> [Instructions]
+parseInstructions fileContents = case M.runParser boardMap "" fileContents of
     Left s -> error (show s)
     Right m -> return m
 
@@ -77,20 +77,28 @@ parseBoardMap fileContents = case M.runParser boardMap "" fileContents of
 -- If a movement instruction would take you off of the map, you wrap around to the other side of the board (unless blocked)
 getPassword :: FilePath -> Int
 getPassword str = 
-    let ((boardMap, movements):_) = traceShowId $ parseBoardMap str
-        initialPosition = (0, fromJust (elemIndex Passable (head boardMap)), 0)
-        numCols = length $ head boardMap
-        numRows = length boardMap
-        getElement (column, row) =
-          let boundedCol = column `mod` numCols
-              boundedRow = row `mod` numRows
-          in head $ drop boundedCol $ head $ drop boundedRow boardMap
-        move [] pos = pos
-        move (TurnLeft:ms) (facing, col, row) = move ms ((facing - 1) `mod` 3, col, row)
-        move (TurnRight:ms) (facing, col, row) = move ms ((facing + 1) `mod` 3, col, row)
+    let ((rowsFirstBoard, movements):_) = parseInstructions str
+        initialFacing = 0
+        initialPosition = (fromJust (elemIndex Passable (head rowsFirstBoard)), 0)
+        numCols = length $ head rowsFirstBoard
+        numRows = length rowsFirstBoard
+        getElement (column, row) = case drop column $ head $ drop row rowsFirstBoard of
+          [] -> NonExistent
+          (x:_) -> x
+        moveSingleSquare 0 (col, row) = ((col+1) `mod` numCols, row)
+        moveSingleSquare 1 (col, row) = (col, (row+1) `mod` numRows)
+        moveSingleSquare 2 (col, row) = ((col-1) `mod` numCols, row)
+        moveSingleSquare 3 (col, row) = (col, (row-1) `mod` numRows)
+        move [] facing (r,c) = (facing, c, r)
+        move (TurnLeft:ms) facing pos = move ms ((facing - 1) `mod` 4) pos
+        move (TurnRight:ms) facing pos = move ms ((facing + 1) `mod` 4) pos
         -- WIP/TODO: Implement movement that skips non-existent squares and stops at blockages here:
-        move ((Forward n):ms) (facing, col, row) = (facing, col, row)
-        (finalFacing, finalRow, finalCol) = move movements initialPosition
+        move ((Forward n):ms) facing pos = 
+          let potentialNextPosition = until (\s -> (getElement s) /= NonExistent) (moveSingleSquare facing) ((moveSingleSquare facing) pos)
+          in case getElement potentialNextPosition of
+            Impassable -> move ms facing pos
+            Passable -> move (if n > 1 then ((Forward (n-1)):ms) else ms) facing potentialNextPosition
+        (finalFacing, finalRow, finalCol) = move movements initialFacing initialPosition
     in 1000 * (finalRow + 1) + 4 * (finalCol + 1) + finalFacing
 
 
