@@ -4,5 +4,5 @@ import Lib
 
 main :: IO ()
 main = do
-    contents <- readFile "example.txt"
-    putStrLn $ show $ areCorrectOrder contents
+    contents <- readFile "input.txt"
+    putStrLn $ show $ part1 contents

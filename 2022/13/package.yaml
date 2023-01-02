@@ -38,6 +38,7 @@ library:
   dependencies:
   - megaparsec
   - split
+  - containers
 
 executables:
   AoC13-exe:
