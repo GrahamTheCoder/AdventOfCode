@@ -8,4 +8,4 @@ main = hspec $ do
   describe "areCorrectOrder" $ do
     it "works for example 1" $ do
       contents <- readFile "example.txt"
-      areCorrectOrder contents `shouldBe` [True, True, False, True, False, True, False, False]
+      part1 contents `shouldBe` 24
