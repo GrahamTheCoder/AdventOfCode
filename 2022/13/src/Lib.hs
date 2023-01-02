@@ -1,5 +1,5 @@
 module Lib
-    ( areCorrectOrder, part1
+    ( areCorrectOrder, part1, part2
     ) where
 
 
@@ -17,9 +17,10 @@ import qualified Text.Megaparsec as M
 import qualified Text.Megaparsec.Char as M
 import qualified Text.Megaparsec.Char.Lexer as L
 import Debug.Trace (traceShow, traceShowId)
+import Debug.Trace.FunctionCall
 
 type MParser = Parsec Void String
-data Node a = Leaf a | Branches [Node a] deriving (Show, Eq)
+data Node a = Leaf a | Branches [Node a] deriving (Show)
 
 parseNode :: Num a => MParser (Node a)
 parseNode = Leaf <$> L.decimal <|> 
@@ -29,7 +30,7 @@ parseFile fileContents = case M.runParser (parseNode `M.sepBy1` some M.newline) 
     Left s -> error (show s)
     Right m -> return m
 
-isLessThan :: (Ord a, Eq a, Show a) => (Node a, Node a) -> Bool
+isLessThan :: (Ord a) => (Node a, Node a) -> Bool
 isLessThan (Leaf l, Leaf r) = l < r
 isLessThan (Branches [], Branches (r:_)) = True
 isLessThan (Branches _, Branches []) = False
@@ -40,7 +41,27 @@ isLessThan (l, rightLeaf@(Leaf _)) = isLessThan (l, Branches [rightLeaf])
 areCorrectOrder str = map (\(a:b:_) -> isLessThan (a,b)) $ chunksOf 2 $ head (parseFile str)
 
 part1 :: String -> Int
-part1 str =
-    let allNodes = head (parseFile str)
-        areCorrectOrder = map (\(a:b:_) -> isLessThan (a,b)) $ chunksOf 2 allNodes
-    in sum $ toList $ mapWithIndex (\i x -> if x then i + 1 else 0) $ fromList areCorrectOrder
+part1 str = sum $ toList $ mapWithIndex (\i x -> if x then i + 1 else 0) $ fromList $ areCorrectOrder str
+
+-- isLessThan' :: (Ord a, Show a) => (Node a, Node a) -> Bool
+-- isLessThan' = traceFunction "isLessThan" isLessThan
+
+
+instance (Ord a, Show a) => Eq (Node a) where
+    (==) x y | isLessThan (x, y) = False
+             | isLessThan (y, x) = False
+             | otherwise = True
+
+instance (Ord a, Show a) => Ord (Node a) where
+    compare x y | isLessThan (x, y) = LT
+                | isLessThan (y, x) = GT
+                | otherwise = EQ
+
+part2 :: String -> Int
+part2 str =
+    let extraNode1 = Branches [Branches [Leaf 2]]
+        extraNode2 = Branches [Branches [Leaf 6]]
+        allNodes = extraNode1:extraNode2:head (parseFile str)
+        orderedNodes = sort allNodes
+        getIndex n = fromJust (elemIndex n orderedNodes) + 1
+    in getIndex extraNode1 * getIndex extraNode2

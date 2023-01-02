@@ -39,6 +39,7 @@ library:
   - megaparsec
   - split
   - containers
+  - trace-function-call
 
 executables:
   AoC13-exe:

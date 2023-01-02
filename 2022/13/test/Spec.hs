@@ -1,3 +1,4 @@
+import Data.List
 import Lib
 import Test.Hspec
 import Test.QuickCheck
@@ -44,3 +45,10 @@ main = hspec $ do
     it "works for example 1" $ do
       contents <- readFile "example.txt"
       part1 contents `shouldBe` 13
+      
+  describe "part2" $ do
+    it "works for markers" $ do
+      part2 "[[3]]\n[[5]]" `shouldBe` 4
+    it "works for example 1" $ do
+      contents <- readFile "example.txt"
+      part2 contents `shouldBe` 140

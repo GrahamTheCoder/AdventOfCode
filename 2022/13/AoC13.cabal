@@ -36,6 +36,7 @@ library
     , containers
     , megaparsec
     , split
+    , trace-function-call
   default-language: Haskell2010
 
 executable AoC13-exe
