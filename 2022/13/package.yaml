@@ -37,6 +37,7 @@ library:
   source-dirs: src
   dependencies:
   - megaparsec
+  - split
 
 executables:
   AoC13-exe:
