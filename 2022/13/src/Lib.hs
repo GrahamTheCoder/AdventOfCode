@@ -43,10 +43,6 @@ areCorrectOrder str = map (\(a:b:_) -> isLessThan (a,b)) $ chunksOf 2 $ head (pa
 part1 :: String -> Int
 part1 str = sum $ toList $ mapWithIndex (\i x -> if x then i + 1 else 0) $ fromList $ areCorrectOrder str
 
--- isLessThan' :: (Ord a, Show a) => (Node a, Node a) -> Bool
--- isLessThan' = traceFunction "isLessThan" isLessThan
-
-
 instance (Ord a, Show a) => Eq (Node a) where
     (==) x y | isLessThan (x, y) = False
              | isLessThan (y, x) = False
