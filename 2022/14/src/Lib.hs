@@ -3,6 +3,7 @@ module Lib
     ) where
 
 import qualified Data.Map as Map
+import Data.Maybe
 import Data.Void
 import Text.Megaparsec (Parsec)
 import qualified Text.Megaparsec as M
@@ -45,8 +46,8 @@ createBoard lineDefs =
     let linePoints = map (\x -> (x, Rock)) $ concatMap pointsForLine lineDefs
     in Map.fromList linePoints
 
-getSandUnitsAtRest :: Board -> Int
-getSandUnitsAtRest board = 
+getSandUnitsAtRest :: Maybe Int -> Board -> Int
+getSandUnitsAtRest floorGap board = 
     let pointList = map fst $ Map.toList board
         xs = map (\(Point (x, _)) -> x) pointList
         ys = map (\(Point (_, y)) -> y) pointList
@@ -55,8 +56,8 @@ getSandUnitsAtRest board =
         maxY = maximum ys
         inAbyss (Point (x,y)) = x < minX || x > maxX || y > maxY
         getForPoint p@(Point (x,y)) b0
-            | inAbyss p = (0, b0, False)
-            | Map.member p b0 = (0, b0, True)
+            | isNothing floorGap && inAbyss p = (0, b0, False)
+            | isJust floorGap && y == maxY + fromJust floorGap || Map.member p b0 = (0, b0, True)
             | otherwise = let 
                 (p1, p2, p3) = (Point (x, y + 1), Point (x - 1, y + 1), Point (x + 1, y + 1))
                 (n1, b1, r1) = getForPoint p1 b0
@@ -70,7 +71,7 @@ getSandUnitsAtRest board =
 
 
 part1 :: String -> Int
-part1 str = getSandUnitsAtRest $ createBoard $ head $ parseFile str
+part1 str = getSandUnitsAtRest Nothing $ createBoard $ head $ parseFile str
 
 part2 :: String -> Int
-part2 _ = 0
+part2 str = getSandUnitsAtRest (Just 2) $ createBoard $ head $ parseFile str
