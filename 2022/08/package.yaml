@@ -1,4 +1,4 @@
-name:                AoC13
+name:                AoC08
 version:             0.1.0.0
 github:              "GrahamTheCoder/adventofcode"
 license:             BSD3
@@ -35,9 +35,13 @@ ghc-options:
 
 library:
   source-dirs: src
+  dependencies:
+  - containers
+  - megaparsec
+
 
 executables:
-  AoC13-exe:
+  AoC08-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -45,10 +49,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - AoC13
+    - AoC08
 
 tests:
-  AoC13-test:
+  AoC08-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -56,4 +60,8 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - AoC13
+    - AoC08
+    - QuickCheck
+    - HUnit
+    - hspec
+    - hspec-contrib

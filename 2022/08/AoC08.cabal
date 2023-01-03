@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 
-name:           AoC13
+name:           AoC08
 version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/GrahamTheCoder/adventofcode#readme>
 homepage:       https://github.com/GrahamTheCoder/adventofcode#readme
@@ -27,35 +27,41 @@ library
   exposed-modules:
       Lib
   other-modules:
-      Paths_AoC13
+      Paths_AoC08
   hs-source-dirs:
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
+    , containers
+    , megaparsec
   default-language: Haskell2010
 
-executable AoC13-exe
+executable AoC08-exe
   main-is: Main.hs
   other-modules:
-      Paths_AoC13
+      Paths_AoC08
   hs-source-dirs:
       app
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      AoC13
+      AoC08
     , base >=4.7 && <5
   default-language: Haskell2010
 
-test-suite AoC13-test
+test-suite AoC08-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Paths_AoC13
+      Paths_AoC08
   hs-source-dirs:
       test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      AoC13
+      AoC08
+    , HUnit
+    , QuickCheck
     , base >=4.7 && <5
+    , hspec
+    , hspec-contrib
   default-language: Haskell2010
