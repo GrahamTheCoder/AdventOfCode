@@ -2,31 +2,32 @@ module Lib
     ( part1, part2
     ) where
 
-import qualified Data.Map as Map
-import Data.Maybe
-import Data.Void
-import Text.Megaparsec (Parsec)
-import qualified Text.Megaparsec as M
-import qualified Text.Megaparsec.Char as M
-import qualified Text.Megaparsec.Char.Lexer as L
-import Debug.Trace (traceShow)
+import Control.Applicative
+import Data.Char
+import Data.List
+import GHC.Utils.Misc
+import Debug.Trace (traceShow, traceShowId)
 
 
-type MParser = Parsec Void String
 
--- right, down
-newtype Point a = Point (a, a) deriving (Show, Eq, Ord)
-
-parseLine :: Num a => MParser [Point a]
-parseLine = (curry Point <$> (L.decimal <* M.char ',') <*> L.decimal) `M.sepBy1` M.string " -> "
-
-parseFile :: (Num a, Monad m) => String -> m [[Point a]]
-parseFile fileContents = case M.runParser (parseLine `M.sepBy1` M.newline) "" fileContents of
-    Left s -> error (show s)
-    Right m -> return m
+parseFile :: String -> [[Int]]
+parseFile fileContents = map (map (\x -> ord x - ord '0')) $ lines fileContents
 
 part1 :: String -> Int
-part1 str = 0
+part1 str =
+    let scan _ [] = []
+        scan tallestSeen (e:es) = (e > tallestSeen) : scan (max tallestSeen e) es
+        mapScan = map (scan (negate 1))
+        rowsOfCols = parseFile str
+        seenMap1 = mapScan rowsOfCols
+        seenMap2 = map reverse $ mapScan (map reverse rowsOfCols)
+        colsOfRows = transpose rowsOfCols
+        seenMap3 = transpose $ mapScan colsOfRows
+        seenMap4 = transpose $ map reverse $ mapScan (map reverse colsOfRows)
+        combine4Rows w x y z = w || x || y || z
+        combine4Maps a b c d = getZipList $ combine4Rows <$> ZipList a <*> ZipList b <*> ZipList c <*> ZipList d
+        seenMapCombined = traceShowId $ getZipList $ combine4Maps <$> ZipList seenMap1 <*> ZipList seenMap2 <*> ZipList seenMap3 <*> ZipList seenMap4
+    in sum $ map (count id) seenMapCombined
 
 part2 :: String -> Int
-part2 str = 0
+part2 _ = 0
