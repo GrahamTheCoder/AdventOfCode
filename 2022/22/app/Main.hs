@@ -4,5 +4,6 @@ import Lib
 
 main :: IO ()
 main = do
-    answer <- fmap getPassword $ readFile "input.txt"
-    putStrLn $ show $ answer
+    input <- readFile "input.txt"
+    putStrLn $ show $ getPassword input
+    putStrLn $ show $ part2 input
