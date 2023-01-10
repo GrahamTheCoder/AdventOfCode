@@ -3,14 +3,10 @@ module Lib
     ) where
 
 import Control.Applicative
-import Data.Char
 import Data.List
 import qualified Data.Map as Map
 import qualified Data.Matrix as Mx
-import Data.List.Utils (hasAny)
 import Data.Maybe
-import Data.Monoid
-import Data.Text (strip, unpack, Text, pack)
 import Data.Void
 import Text.Megaparsec (Parsec)
 import qualified Text.Megaparsec as M
@@ -20,10 +16,6 @@ import Debug.Trace (traceShow, traceShowId)
 
 type MParser = Parsec Void String
 
-newtype Col = Col Int
-newtype Row = Row Int
-newtype Facing = Facing Int
-newtype Position = Position (Facing, Col, Row)
 data MapSquare = NonExistent | Passable | Impassable deriving (Show, Eq)
 data Movement = Forward Int | TurnLeft | TurnRight
     deriving (Show, Eq)
@@ -69,7 +61,23 @@ parseInstructions fileContents = case M.runParser boardMap "" fileContents of
     Left s -> error (show s)
     Right m -> return m
 
+moveSingleSquare :: Int -> (Int, Int) -> (Int, Int)
+moveSingleSquare 0 (col, row) = (col+1, row)
+moveSingleSquare 1 (col, row) = (col, row+1)
+moveSingleSquare 2 (col, row) = (col-1, row)
+moveSingleSquare 3 (col, row) = (col, row-1)
 
+getBasics str =
+    let ((rowsFirstBoard, movements):_) = parseInstructions str
+        initialFacing = 0
+        initialPosition = (fromJust (elemIndex Passable (head rowsFirstBoard)), 0)
+        endOfBoard = max (maximum (map length rowsFirstBoard)) (length rowsFirstBoard)
+        getElement (c, r)
+          | 0 <= c && c < endOfBoard && 0 <= r && r < endOfBoard = case map (drop c) $ drop r rowsFirstBoard of 
+            ((a:_):_) -> a
+            b -> NonExistent
+          | otherwise = NonExistent
+    in (movements, initialFacing, initialPosition, endOfBoard, getElement)
 
 -- You begin the path in the leftmost open tile facing right
 -- The final password is the sum of 1000 times the row, 4 times the column, and the facing.
@@ -78,27 +86,17 @@ parseInstructions fileContents = case M.runParser boardMap "" fileContents of
 -- If a movement instruction would take you off of the map, you wrap around to the other side of the board (unless blocked)
 getPassword :: String -> Int
 getPassword str = 
-    let ((rowsFirstBoard, movements):_) = parseInstructions str
-        initialFacing = 0
-        initialPosition = (fromJust (elemIndex Passable (head rowsFirstBoard)), 0)
-        numCols = length $ head rowsFirstBoard
-        numRows = length rowsFirstBoard
-        getElement (column, row) = case drop column $ rowsFirstBoard !! row of
-          [] -> NonExistent
-          (x:_) -> x
-        moveSingleSquare 0 (col, row) = ((col+1) `mod` numCols, row)
-        moveSingleSquare 1 (col, row) = (col, (row+1) `mod` numRows)
-        moveSingleSquare 2 (col, row) = ((col-1) `mod` numCols, row)
-        moveSingleSquare 3 (col, row) = (col, (row-1) `mod` numRows)
-        move [] facing (r,c) = (facing, c, r)
+    let (movements, initialFacing, initialPosition, endOfBoard, getElement) = getBasics str
+        moveSingleSquareWrapped f p = let (c, r) = moveSingleSquare f p in (c `mod` endOfBoard, r `mod` endOfBoard)
+        move [] facing (c,r) = (facing, c, r)
         move (TurnLeft:ms) facing pos = move ms ((facing - 1) `mod` 4) pos
         move (TurnRight:ms) facing pos = move ms ((facing + 1) `mod` 4) pos
         move ((Forward n):ms) facing pos = 
-          let potentialNextPosition = until (\s -> getElement s /= NonExistent) (moveSingleSquare facing) (moveSingleSquare facing pos)
+          let potentialNextPosition = until (\s -> getElement s /= NonExistent) (moveSingleSquareWrapped facing) (moveSingleSquareWrapped facing pos)
           in case getElement potentialNextPosition of
             Impassable -> move ms facing pos
             Passable -> move (if n > 1 then Forward (n-1):ms else ms) facing potentialNextPosition
-        (finalFacing, finalRow, finalCol) = move movements initialFacing initialPosition
+        (finalFacing, finalCol, finalRow) = move movements initialFacing initialPosition
     in 1000 * (finalRow + 1) + 4 * (finalCol + 1) + finalFacing
 
 type IntMx = Mx.Matrix Int
@@ -111,43 +109,27 @@ newtype CubePosition = CubePosition (IntMx, IntMx, IntMx) deriving (Show, Eq)
 
 -- These are just created from defining my axes to match to the 2d co-ords: x goes right, y goes down, z goes inwards
 -- Then plugging in a 90 degree turn into rotation matrix: https://www.cuemath.com/algebra/rotation-matrix/
+
+initialAxisMoveForward, initialAxisPassEdge, initialAxisTurnLeft :: Mx.Matrix Int
 initialAxisMoveForward = Mx.fromList 3 1 [1, 0, 0]
 initialAxisPassEdge = Mx.fromLists [ [0,0,negate 1], [0,1,0], [1,0,0] ]
 initialAxisTurnLeft = Mx.fromLists [ [0,1,0], [negate 1,0,0], [0,0,1] ]
 
+fst3 :: (a, b, c) -> a
 fst3 (a, _, _) = a
-fst4 (a, _, _, _) = a
 
 part2 :: String -> Int
 part2 str = 
-    let ((rowsFirstBoard, movements):_) = parseInstructions str
-        initialFacing = 0
-        initialPos = (fromJust (elemIndex Passable (head rowsFirstBoard)), 0)
-        endOfBoard = max (maximum (map length rowsFirstBoard)) (length rowsFirstBoard)
+    let (movements, initialFacing, initialPos, endOfBoard, getElement) = getBasics str
         m = endOfBoard `div` 4
         t = m + 1
-        getElement (c, r)
-          | 0 <= c && c < endOfBoard && 0 <= r && r < endOfBoard = case map (drop c) $ drop r rowsFirstBoard of 
-            ((a:_):_) -> a
-            b -> NonExistent
-          | otherwise = NonExistent
         positionExists (x,y) = getElement (x,y) /= NonExistent
-        moveSingleSquare 0 (col, row) = (col+1, row)
-        moveSingleSquare 1 (col, row) = (col, row+1)
-        moveSingleSquare 2 (col, row) = (col-1, row)
-        moveSingleSquare 3 (col, row) = (col, row-1)
         initialCubePos = CubePosition (Mx.fromList 3 1 [1, 1, 0], initialAxisMoveForward, Mx.identity 3)
-
-        rotateCube :: Int -> IntMx -> CubePosition -> CubePosition
         rotateCube 0 _ c = c
-        rotateCube n rotation (CubePosition (pos3, moveForward, rotCube)) =
-          let rotation3 = rotation * rotation * rotation
-              (turnPerson, turnCube) = if n == 1 then (rotation, rotation3) else (rotation3, rotation) --TODO Figure out how to raise to power n, it seemed to work in the repl, but returns a 1x1 matrix here
-              newRotCube = rotCube * turnPerson
+        rotateCube n rotation (CubePosition (pos3, _, rotCube)) =
+          let newRotCube = rotCube * rotation ^ n
           in CubePosition (pos3, newRotCube * initialAxisMoveForward, newRotCube)
-        
         cubeTurnLeft n = rotateCube n initialAxisTurnLeft
-
         cubeMoveForward n (CubePosition (pos3, moveForward, rotCube)) =
           let trivialMove = pos3 + moveForward
               coOrdInDirectionOfTravel = abs $ Mx.unsafeGet 1 1 $ Mx.transpose trivialMove * moveForward
@@ -155,33 +137,25 @@ part2 str =
               trivialCubePosition = CubePosition (trivialMove, moveForward, rotCube)
               intermediatePos = if isOnCorner then cubeMoveForward 1 (rotateCube 1 initialAxisPassEdge trivialCubePosition) else trivialCubePosition
           in if n > 1 then cubeMoveForward (n-1) intermediatePos else intermediatePos
-        
-        getForTurns :: (Int, Int) -> Int -> Int -> ((Int, Int), Int, Int)
-        getForTurns pos facing leftTurns = (moveSingleSquare newFacing pos, newFacing, leftTurns)
-                where newFacing = (facing-leftTurns) `mod` 4
-        perimiterMove :: (Int, Int) -> Int -> ((Int, Int), Int, Int)
-        perimiterMove pos facing = fromJust $ find (positionExists.fst3) $ map (getForTurns pos facing) [1, 0, 3]
-        walkPerimiter squarePos facing cubePos cubeToSquare =
-          let (newSquarePos, newFacing, leftTurns) = perimiterMove squarePos facing
-              newCubePos@(CubePosition (pos3, _, _)) = cubeMoveForward 1 (cubeTurnLeft leftTurns cubePos)
-          in if Map.member pos3 cubeToSquare then cubeToSquare
-          else walkPerimiter newSquarePos newFacing newCubePos (Map.insert pos3 newSquarePos cubeToSquare)
-        squareFromCube = walkPerimiter initialPos initialFacing initialCubePos Map.empty
 
-        getFacingFrom2Pos (x, y) (nx, ny)
-          | nx > x = 0
-          | ny > y = 1
-          | nx < x = 2
-          | ny < y = 3
-          | otherwise = error $ "Cannot discern facing from two identical points: " ++ show (x,y)
-
-        getFacing :: (Int, Int) -> CubePosition -> Int
-        getFacing edgeSquarePos cubePosition =  
-            let farEdgeCubePos@(CubePosition (farEdgeCubeCoOrds, _, _)) = cubeMoveForward (m - 1) cubePosition
+        squareFromCube =
+          let getForTurns pos facing leftTurns = (moveSingleSquare newFacing pos, newFacing, leftTurns)
+                  where newFacing = (facing-leftTurns) `mod` 4
+              perimiterMove pos facing = fromJust $ find (positionExists.fst3) $ map (getForTurns pos facing) [1, 0, 3]
+              walkPerimiter squarePos facing cubePos cubeToSquare =
+                let (newSquarePos, newFacing, leftTurns) = perimiterMove squarePos facing
+                    newCubePos@(CubePosition (pos3, _, _)) = cubeMoveForward 1 (cubeTurnLeft leftTurns cubePos)
+                in if Map.member pos3 cubeToSquare then cubeToSquare
+                else walkPerimiter newSquarePos newFacing newCubePos (Map.insert pos3 newSquarePos cubeToSquare)
+          in walkPerimiter initialPos initialFacing initialCubePos Map.empty
+        getFacing edgeSquarePos cubePosition =
+            let getFacingFrom2Pos (x, y) (nx, ny) | nx > x = 0 | ny > y = 1 | nx < x = 2 | ny < y = 3
+                  | otherwise = error $ "Cannot discern facing from two identical points: " ++ show (x,y)
+                farEdgeCubePos@(CubePosition (farEdgeCubeCoOrds, _, _)) = cubeMoveForward (m - 1) cubePosition
              in case Map.lookup farEdgeCubeCoOrds squareFromCube of 
                 Just farEdge2Pos -> getFacingFrom2Pos edgeSquarePos farEdge2Pos
                 _ -> getFacing edgeSquarePos farEdgeCubePos -- Only walked perimiter, so may have to look further than one edge
-        move [] facing (c,r) cubePos = (facing, c, r)
+        move [] facing (c,r) _ = (facing, c, r)
         move (TurnLeft:ms) facing pos cubePos = move ms ((facing - 1) `mod` 4) pos (cubeTurnLeft 1 cubePos)
         move (TurnRight:ms) facing pos cubePos = move ms ((facing + 1) `mod` 4) pos (cubeTurnLeft 3 cubePos)
         move ((Forward n):ms) facing pos cubePos@(CubePosition (_, _, oldRot)) = 
@@ -190,8 +164,8 @@ part2 str =
                   Just p -> (p, if oldRot == newRot then facing else getFacing p nextCubePos)
                   Nothing -> (moveSingleSquare facing pos, facing)
           in case getElement nextSquarePos of
-            Impassable -> move ms facing pos cubePos
-            Passable -> move (if n > 1 then Forward (n-1):ms else ms) nextFacing nextSquarePos nextCubePos
-            NonExistent -> error $ "Reached non-existent square" ++ show nextSquarePos
+              Impassable -> move ms facing pos cubePos
+              Passable -> move (if n > 1 then Forward (n-1):ms else ms) nextFacing nextSquarePos nextCubePos
+              NonExistent -> error $ "Reached non-existent square" ++ show nextSquarePos
         (finalFacing, finalCol, finalRow) = move movements initialFacing initialPos initialCubePos
     in 1000 * (finalRow + 1) + 4 * (finalCol + 1) + finalFacing
