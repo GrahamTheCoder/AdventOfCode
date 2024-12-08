@@ -1,5 +1,5 @@
 import pytest
-from day01 import calculate_total_distance
+from day01 import total_distance
 
 @pytest.mark.parametrize("left, right, expected", [
     ([1, 2, 3], [4, 5, 6], 9),
@@ -11,12 +11,10 @@ from day01 import calculate_total_distance
     ([1, 2, 3], [1, 2, 3], 0),
     ([1, 2, 3], [3, 3, 3], 3),
     ([1, 2, 3], [1, 1, 1], 3),
+    ([], [], 0),
 ])
 def test_calculate_total_distance(left, right, expected):
-    assert calculate_total_distance(left, right) == expected
-
-def test_calculate_total_distance_empty():
-    assert calculate_total_distance([], []) == 0
+    assert sum(total_distance(left, right)) == expected
 
 if __name__ == "__main__":
     pytest.main()

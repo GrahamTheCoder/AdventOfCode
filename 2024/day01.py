@@ -1,4 +1,5 @@
 from typing import List, Tuple
+from collections import Counter
 
 def parse_input(filename: str) -> Tuple[List[int], List[int]]:
     """
@@ -21,15 +22,27 @@ def parse_input(filename: str) -> Tuple[List[int], List[int]]:
 
     return left_list, right_list
 
-def calculate_total_distance(left: List[int], right: List[int]) -> int:
+def total_distance(left: List[int], right: List[int]) -> List[int]:
     sorted_left = sorted(left)
     sorted_right = sorted(right)
-    return sum(abs(l - r) for l, r in zip(sorted_left, sorted_right))
+    return (abs(l - r) for l, r in zip(sorted_left, sorted_right))
+
+def similarity_score(left: List[int], right: List[int]) -> List[int]:
+    """
+    For each number in left list, multiplies it by its frequency in right list
+    and sums all products.
+    """
+    # Create frequency counter for right list
+    right_counts = Counter(right)
+
+    return (num * right_counts[num] for num in left)
 
 def main():
     left_list, right_list = parse_input('inputs/01.txt')
-    result = calculate_total_distance(left_list, right_list)
+    result = sum(total_distance(left_list, right_list))
     print(f"Total distance: {result}")
+    result = sum(similarity_score(left_list, right_list))
+    print(f"Similarity score: {result}")
 
 if __name__ == "__main__":
     main()
