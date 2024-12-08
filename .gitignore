@@ -423,3 +423,4 @@ cabal.project.local~
 .ghc.environment.*
 *.exe
 *.lock
+**/.venv/
