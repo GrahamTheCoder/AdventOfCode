@@ -5,16 +5,16 @@ def parse_memory(file_path):
         data = file.read()
         
     # Regular expression to extract valid mul, do, and don't instructions
-    pattern = r'mul\((\d{1,3}),(\d{1,3})\)|do\(\)|don\'t\(\)'
+    pattern = r'(mul)\((\d{1,3}),(\d{1,3})\)|(do\(\)|don\'t\(\))'
     matches = re.findall(pattern, data)
     
     instructions = []
     for match in matches:
-        if match[0] and match[1]:
-            instructions.append(('mul', int(match[0]), int(match[1])))
-        elif match[0] == 'do':
+        if match[1] and match[2]:
+            instructions.append(('mul', int(match[1]), int(match[2])))
+        elif 'do()' in match:
             instructions.append(('do',))
-        elif match[0] == 'don\'t':
+        elif "don't()" in match:
             instructions.append(('don\'t',))
     return instructions
 
@@ -34,7 +34,7 @@ def solve(instructions):
     return total_sum
 
 if __name__ == "__main__":
-    file_path = 'inputs/03-example.txt'
+    file_path = 'inputs/03.txt'
     instructions = parse_memory(file_path)
     result = solve(instructions)
     print(result)
