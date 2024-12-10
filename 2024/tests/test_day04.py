@@ -1,3 +1,5 @@
+import pytest
+
 def parse_input(file_path):
     with open(file_path, 'r') as file:
         grid = [list(line.strip()) for line in file.readlines()]
@@ -35,6 +37,53 @@ def solve(file_path):
     grid = parse_input(file_path)
     return find_xmas_in_grid(grid)
 
-# Example usage:
-file_path = "inputs/04.txt"
-print(solve(file_path))
+@pytest.mark.parametrize("grid, expected_count", [
+    ([
+        "M.S",
+        ".A.",
+        "M.S"
+    ], 1),
+    ([
+        "M.S.....",
+        "..A..MSMS",
+        ".M.S.MAA.",
+        "..A.ASMSM",
+        ".M.S.M...",
+        ".........",
+        "S.S.S.S.S",
+        ".A.A.A.A.",
+        "M.M.M.M.M",
+        "........."
+    ], 9),
+    ([
+        "MMMMMMMMM",
+        "MMMMMMMMM",
+        "MMMMMMMMM",
+        "MMMMMMMMM",
+        "MMMMMMMMM",
+        "MMMMMMMMM",
+        "MMMMMMMMM",
+        "MMMMMMMMM",
+        "MMMMMMMMM",
+        "MMMMMMMMM"
+    ], 0),
+    ([
+        "M.S",
+        "A.A",
+        "M.S"
+    ], 0),
+    ([
+        "MASMASMAS",
+        "ASMASMASM",
+        "SASMASMAS",
+        "MASMASMAS",
+        "ASMASMASM",
+        "SASMASMAS",
+        "MASMASMAS",
+        "ASMASMASM",
+        "SASMASMAS"
+    ], 0)
+])
+def test_find_xmas_in_grid(grid, expected_count):
+    grid = [list(row) for row in grid]
+    assert find_xmas_in_grid(grid) == expected_count
