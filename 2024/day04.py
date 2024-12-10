@@ -1,40 +1,29 @@
-def parse_input(file_path):
+def parse_grid(file_path):
     with open(file_path, 'r') as file:
-        grid = [list(line.strip()) for line in file.readlines()]
+        grid = [line.strip() for line in file.readlines()]
     return grid
 
-def find_xmas_in_grid(grid):
-    def is_xmas_at(x, y):
-        # Check all 8 possible orientations of "MAS" in the shape of an X
-        patterns = [
-            [(0, 0), (1, -1), (2, -2), (1, 1), (2, 2)],  # M.A.S / S.A.M
-            [(0, 0), (1, 1), (2, 2), (1, -1), (2, -2)],  # M.A.S / S.A.M
-            [(0, 0), (-1, -1), (-2, -2), (-1, 1), (-2, 2)],  # M.A.S / S.A.M
-            [(0, 0), (-1, 1), (-2, 2), (-1, -1), (-2, -2)],  # M.A.S / S.A.M
-            [(0, 0), (1, -1), (2, -2), (-1, -1), (-2, -2)],  # M.A.S / S.A.M
-            [(0, 0), (1, 1), (2, 2), (-1, 1), (-2, 2)],  # M.A.S / S.A.M
-            [(0, 0), (-1, -1), (-2, -2), (1, -1), (2, -2)],  # M.A.S / S.A.M
-            [(0, 0), (-1, 1), (-2, 2), (1, 1), (2, 2)]  # M.A.S / S.A.M
-        ]
-        for pattern in patterns:
-            if all(0 <= x + dx < len(grid) and 0 <= y + dy < len(grid[0]) and grid[x + dx][y + dy] == 'M' for dx, dy in pattern[::3]) and \
-               all(0 <= x + dx < len(grid) and 0 <= y + dy < len(grid[0]) and grid[x + dx][y + dy] == 'A' for dx, dy in pattern[1::3]) and \
-               all(0 <= x + dx < len(grid) and 0 <= y + dy < len(grid[0]) and grid[x + dx][y + dy] == 'S' for dx, dy in pattern[2::3]):
-                return True
-        return False
-
+def count_xmas_patterns(grid):
+    rows = len(grid)
+    cols = len(grid[0])
     count = 0
-    for x in range(len(grid)):
-        for y in range(len(grid[0])):
-            if is_xmas_at(x, y):
-                count += 1
 
+    for i in range(1, rows - 1):
+        for j in range(1, cols - 1):
+            if grid[i][j] == 'A':
+                # Check all possible combinations using XOR logic
+                if ((grid[i-1][j-1] == 'M' and grid[i+1][j+1] == 'S') ^ 
+                    (grid[i-1][j+1] == 'M' and grid[i+1][j-1] == 'S') ^
+                    (grid[i-1][j-1] == 'S' and grid[i+1][j+1] == 'M') ^
+                    (grid[i-1][j+1] == 'S' and grid[i+1][j-1] == 'M')):
+                    count += 1
     return count
 
-def solve(file_path):
-    grid = parse_input(file_path)
-    return find_xmas_in_grid(grid)
+def main(file_path):
+    grid = parse_grid(file_path)
+    result = count_xmas_patterns(grid)
+    print(f"Number of X-MAS patterns: {result}")
 
 # Example usage:
-file_path = "inputs/04.txt"
-print(solve(file_path))
+if __name__ == "__main__":
+    main('inputs/00.txt')
