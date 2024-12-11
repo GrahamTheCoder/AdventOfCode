@@ -51,25 +51,12 @@ def move_guard(map_grid, guard_position, guard_direction):
     
     return visited_positions
 
-def find_obstruction_positions(map_grid, guard_position, guard_direction):
-    visited_positions = move_guard(map_grid, guard_position, guard_direction)
-    possible_obstructions = set()
-    
-    for x, y in visited_positions:
-        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            nx, ny = x + dx, y + dy
-            if 0 <= nx < len(map_grid[0]) and 0 <= ny < len(map_grid):
-                if map_grid[ny][nx] == '.' and (nx, ny) not in visited_positions:
-                    possible_obstructions.add((nx, ny))
-    
-    return possible_obstructions
-
-def count_obstruction_positions(file_path):
+def count_distinct_positions(file_path):
     map_grid, guard_position, guard_direction = parse_input(file_path)
-    possible_obstructions = find_obstruction_positions(map_grid, guard_position, guard_direction)
-    return len(possible_obstructions)
+    visited_positions = move_guard(map_grid, guard_position, guard_direction)
+    return len(visited_positions)
 
 if __name__ == "__main__":
-    file_path = 'inputs/06.txt'
-    result = count_obstruction_positions(file_path)
+    file_path = 'inputs/06-example.txt'
+    result = count_distinct_positions(file_path)
     print(result)
