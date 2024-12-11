@@ -1,3 +1,13 @@
+class MapWithObstacle:
+    def __init__(self, map_grid, obstacle_position=None):
+        self.map_grid = map_grid
+        self.obstacle_position = obstacle_position
+
+    def is_obstacle(self, x, y):
+        if self.obstacle_position and (x, y) == self.obstacle_position:
+            return True
+        return self.map_grid[y][x] != '.'
+
 def parse_input(file_path):
     with open(file_path, 'r') as file:
         lines = file.readlines()
@@ -17,7 +27,7 @@ def parse_input(file_path):
     
     return map_grid, guard_position, guard_direction
 
-def move_guard(map_grid, guard_position, guard_direction):
+def move_guard(map_with_obstacle, guard_position, guard_direction):
     direction_vectors = {
         '^': (0, -1),
         '>': (1, 0),
@@ -40,8 +50,8 @@ def move_guard(map_grid, guard_position, guard_direction):
         dx, dy = direction_vectors[guard_direction]
         new_x, new_y = x + dx, y + dy
         
-        if 0 <= new_x < len(map_grid[0]) and 0 <= new_y < len(map_grid):
-            if map_grid[new_y][new_x] == '.':
+        if 0 <= new_x < len(map_with_obstacle.map_grid[0]) and 0 <= new_y < len(map_with_obstacle.map_grid):
+            if not map_with_obstacle.is_obstacle(new_x, new_y):
                 x, y = new_x, new_y
                 visited_positions.add((x, y))
             else:
@@ -51,7 +61,7 @@ def move_guard(map_grid, guard_position, guard_direction):
     
     return visited_positions
 
-def detect_loops(map_grid, guard_position, guard_direction):
+def detect_loops(map_with_obstacle, guard_position, guard_direction):
     direction_vectors = {
         '^': (0, -1),
         '>': (1, 0),
@@ -80,8 +90,8 @@ def detect_loops(map_grid, guard_position, guard_direction):
         dx, dy = direction_vectors[direction]
         new_x, new_y = x + dx, y + dy
         
-        if 0 <= new_x < len(map_grid[0]) and 0 <= new_y < len(map_grid):
-            if map_grid[new_y][new_x] == '.':
+        if 0 <= new_x < len(map_with_obstacle.map_grid[0]) and 0 <= new_y < len(map_with_obstacle.map_grid):
+            if not map_with_obstacle.is_obstacle(new_x, new_y):
                 x, y = new_x, new_y
             else:
                 direction = turn_right[direction]
@@ -90,24 +100,22 @@ def detect_loops(map_grid, guard_position, guard_direction):
     
     return loop_positions
 
-def simulate_with_obstacle(map_grid, guard_position, guard_direction, obstacle_position):
-    map_grid_copy = [row[:] for row in map_grid]
-    map_grid_copy[obstacle_position[1]][obstacle_position[0]] = '#'
-    return detect_loops(map_grid_copy, guard_position, guard_direction)
-
 def find_obstacle_positions_causing_loops(map_grid, guard_position, guard_direction):
-    visited_positions = move_guard(map_grid, guard_position, guard_direction)
+    map_with_obstacle = MapWithObstacle(map_grid)
+    visited_positions = move_guard(map_with_obstacle, guard_position, guard_direction)
     loop_causing_positions = set()
     
     for pos in visited_positions:
-        if simulate_with_obstacle(map_grid, guard_position, guard_direction, pos):
+        map_with_obstacle.obstacle_position = pos
+        if detect_loops(map_with_obstacle, guard_position, guard_direction):
             loop_causing_positions.add(pos)
     
     return loop_causing_positions
 
 def count_distinct_positions(file_path):
     map_grid, guard_position, guard_direction = parse_input(file_path)
-    visited_positions = move_guard(map_grid, guard_position, guard_direction)
+    map_with_obstacle = MapWithObstacle(map_grid)
+    visited_positions = move_guard(map_with_obstacle, guard_position, guard_direction)
     loop_causing_positions = find_obstacle_positions_causing_loops(map_grid, guard_position, guard_direction)
     return len(visited_positions), len(loop_causing_positions)
 
