@@ -28,18 +28,49 @@ def is_valid_update(update, rules):
                 return False
     return True
 
+def reorder_update(update, rules):
+    from collections import defaultdict, deque
+    
+    graph = defaultdict(list)
+    in_degree = defaultdict(int)
+    pages = set(update)
+    
+    for x, y in rules:
+        if x in pages and y in pages:
+            graph[x].append(y)
+            in_degree[y] += 1
+            if x not in in_degree:
+                in_degree[x] = 0
+    
+    queue = deque([node for node in pages if in_degree[node] == 0])
+    ordered_update = []
+    
+    while queue:
+        node = queue.popleft()
+        ordered_update.append(node)
+        for neighbor in graph[node]:
+            in_degree[neighbor] -= 1
+            if in_degree[neighbor] == 0:
+                queue.append(neighbor)
+    
+    return ordered_update
+
 def find_middle_page_number(update):
     return update[len(update) // 2]
 
 def sum_of_middle_page_numbers(file_path):
     rules, updates = parse_input(file_path)
     valid_middle_numbers = []
+    invalid_middle_numbers = []
     
     for update in updates:
         if is_valid_update(update, rules):
             valid_middle_numbers.append(find_middle_page_number(update))
+        else:
+            reordered_update = reorder_update(update, rules)
+            invalid_middle_numbers.append(find_middle_page_number(reordered_update))
     
-    return sum(valid_middle_numbers)
+    return sum(invalid_middle_numbers)
 
 if __name__ == "__main__":
     file_path = 'inputs/05.txt'
