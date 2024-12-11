@@ -40,13 +40,13 @@ def move_guard(map_grid, guard_position, guard_direction):
         dx, dy = direction_vectors[guard_direction]
         new_x, new_y = x + dx, y + dy
         
-        if (0 <= new_x < len(map_grid[0]) and 0 <= new_y < len(map_grid) and map_grid[new_y][new_x] == '.'):
-            x, y = new_x, new_y
-            visited_positions.add((x, y))
+        if 0 <= new_x < len(map_grid[0]) and 0 <= new_y < len(map_grid):
+            if map_grid[new_y][new_x] == '.':
+                x, y = new_x, new_y
+                visited_positions.add((x, y))
+            else:
+                guard_direction = turn_right[guard_direction]
         else:
-            guard_direction = turn_right[guard_direction]
-        
-        if not (0 <= x < len(map_grid[0]) and 0 <= y < len(map_grid)):
             break
     
     return visited_positions
