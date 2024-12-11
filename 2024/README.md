@@ -1,4 +1,14 @@
-It's likely much of this folder will be AI generated code. I may highlight non-trivial prompts in the commit messages.
+Much of this folder is AI generated code. I'm practicing my prompting and LLM dev workflow on these problems.
+
+Sometimes the LLM will just solve the whole thing, but when it doesn't the idea is to get as much of the way along this journey as possible.
+1. A clear problem definition
+2. A separate parsing function (which is usually easy, but boring to code)
+3. The rough shape of a solution
+4. The crux of the solution
+5. Readable and maintainable code for a solution
+6. (Optional) May do a unit test based prompt too, though an agent is better suited really.
+
+I may highlight non-trivial prompts in the commit messages.
 
 ### Current system prompt
 
