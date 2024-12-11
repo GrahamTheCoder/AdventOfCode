@@ -1,3 +1,5 @@
+from collections import defaultdict, deque
+
 def parse_input(file_path):
     with open(file_path, 'r') as file:
         content = file.read().strip().split('\n')
@@ -20,53 +22,45 @@ def parse_input(file_path):
     return rules, updates
 
 def is_valid_update(update, rules):
-    index_map = {page: idx for idx, page in enumerate(update)}
-    
-    for x, y in rules:
-        if x in index_map and y in index_map:
-            if index_map[x] > index_map[y]:
-                return False
-    return True
+    index_from_page = {page: idx for idx, page in enumerate(update)}
+    return all(
+        index_from_page[x] <= index_from_page[y]
+        for x, y in rules
+        if x in index_from_page and y in index_from_page
+    )
 
 def reorder_update(update, rules):
-    from collections import defaultdict, deque
-    
-    graph = defaultdict(list)
-    in_degree = defaultdict(int)
+    dependent_upon = defaultdict(list)
+    unprinted_dependants = defaultdict(int)
     pages = set(update)
     
     for x, y in rules:
         if x in pages and y in pages:
-            graph[x].append(y)
-            in_degree[y] += 1
-            if x not in in_degree:
-                in_degree[x] = 0
+            dependent_upon[x].append(y)
+            unprinted_dependants[y] += 1
     
-    queue = deque([node for node in pages if in_degree[node] == 0])
-    ordered_update = []
+    valid_to_print = deque(node for node in pages if unprinted_dependants[node] == 0)
+    print_order = []
     
-    while queue:
-        node = queue.popleft()
-        ordered_update.append(node)
-        for neighbor in graph[node]:
-            in_degree[neighbor] -= 1
-            if in_degree[neighbor] == 0:
-                queue.append(neighbor)
+    while valid_to_print:
+        current_page = valid_to_print.popleft()
+        print_order.append(current_page)
+        for neighbor in dependent_upon[current_page]:
+            unprinted_dependants[neighbor] -= 1
+            if unprinted_dependants[neighbor] == 0:
+                valid_to_print.append(neighbor)
     
-    return ordered_update
+    return print_order
 
 def find_middle_page_number(update):
     return update[len(update) // 2]
 
 def sum_of_middle_page_numbers(file_path):
     rules, updates = parse_input(file_path)
-    valid_middle_numbers = []
     invalid_middle_numbers = []
     
     for update in updates:
-        if is_valid_update(update, rules):
-            valid_middle_numbers.append(find_middle_page_number(update))
-        else:
+        if not is_valid_update(update, rules):
             reordered_update = reorder_update(update, rules)
             invalid_middle_numbers.append(find_middle_page_number(reordered_update))
     
