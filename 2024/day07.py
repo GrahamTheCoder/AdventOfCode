@@ -22,8 +22,9 @@ def evaluate_expression_dp(numbers, target):
         
         add_result = dp_eval(i + 1, current_value + numbers[i])
         multiply_result = dp_eval(i + 1, current_value * numbers[i])
+        concat_result = dp_eval(i + 1, int(str(current_value) + str(numbers[i])))
         
-        dp[(i, current_value)] = add_result or multiply_result
+        dp[(i, current_value)] = add_result or multiply_result or concat_result
         return dp[(i, current_value)]
     
     return dp_eval(1, numbers[0])
