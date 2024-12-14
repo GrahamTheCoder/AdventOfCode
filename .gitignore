@@ -424,3 +424,4 @@ cabal.project.local~
 *.exe
 *.lock
 **/.venv/
+**/inputs/
