@@ -19,7 +19,7 @@ def transform_stones(stones):
 
 def main():
     stones = parse_input('inputs/11.txt')
-    for _ in range(25):
+    for _ in range(75):
         stones = transform_stones(stones)
     print(len(stones))
 
