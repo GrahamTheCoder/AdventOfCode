@@ -34,7 +34,9 @@ def calculate_area_and_perimeter(region, grid):
     area = len(region)
     perimeter = 0
     for x, y in region:
-        for nx, ny in get_neighbors(x, y, grid):
+        neighbors = get_neighbors(x, y, grid)
+        perimeter += 4 - len(neighbors)
+        for nx, ny in neighbors:
             if grid[nx][ny] != grid[x][y]:
                 perimeter += 1
                 
@@ -55,7 +57,7 @@ def calculate_total_cost(grid):
     return total_cost, region_costs
 
 if __name__ == "__main__":
-    grid = parse_input('inputs/12-example.txt')
+    grid = parse_input('inputs/12.txt')
     total_cost, region_costs = calculate_total_cost(grid)
     for plant_type, area, perimeter, cost in region_costs:
         print(f"A region of {plant_type} plants with price {area} * {perimeter} = {cost}.")
