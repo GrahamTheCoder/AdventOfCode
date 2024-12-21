@@ -39,10 +39,19 @@ def calculate_area_and_perimeter(region, grid):
         for nx, ny in neighbors:
             if grid[nx][ny] != grid[x][y]:
                 perimeter += 1
-                
     return area, perimeter
 
-def calculate_total_cost(grid):
+def calculate_area_and_sides(region, grid):
+    area = len(region)
+    sides = set()
+    for x, y in region:
+        neighbors = get_neighbors(x, y, grid)
+        for nx, ny in neighbors:
+            if grid[nx][ny] != grid[x][y]:
+                sides.add(((x, y), (nx, ny)))
+    return area, len(sides)
+
+def calculate_total_cost(grid, part=1):
     visited = set()
     total_cost = 0
     region_costs = []
@@ -50,15 +59,24 @@ def calculate_total_cost(grid):
         for y in range(len(grid[0])):
             if (x, y) not in visited:
                 region = flood_fill(x, y, grid, visited)
-                area, perimeter = calculate_area_and_perimeter(region, grid)
-                cost = area * perimeter
-                region_costs.append((grid[x][y], area, perimeter, cost))
+                if part == 1:
+                    area, perimeter = calculate_area_and_perimeter(region, grid)
+                    cost = area * perimeter
+                else:
+                    area, sides = calculate_area_and_sides(region, grid)
+                    cost = area * sides
+                region_costs.append((grid[x][y], area, perimeter if part == 1 else sides, cost))
                 total_cost += cost
     return total_cost, region_costs
 
 if __name__ == "__main__":
-    grid = parse_input('inputs/12.txt')
-    total_cost, region_costs = calculate_total_cost(grid)
-    for plant_type, area, perimeter, cost in region_costs:
+    grid = parse_input('inputs/12-example2.txt')
+    total_cost_part1, region_costs_part1 = calculate_total_cost(grid, part=1)
+    for plant_type, area, perimeter, cost in region_costs_part1:
         print(f"A region of {plant_type} plants with price {area} * {perimeter} = {cost}.")
-    print(f"Total cost: {total_cost}")
+    print(f"Total cost for part 1: {total_cost_part1}")
+
+    total_cost_part2, region_costs_part2 = calculate_total_cost(grid, part=2)
+    for plant_type, area, sides, cost in region_costs_part2:
+        print(f"A region of {plant_type} plants with price {area} * {sides} = {cost}.")
+    print(f"Total cost for part 2: {total_cost_part2}")
