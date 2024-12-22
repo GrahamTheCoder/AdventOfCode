@@ -51,9 +51,22 @@ def calculate_area_and_perimeter(region, grid):
 
 
 def calculate_area_and_sides(region, grid):
-# Pay special attention: Rather than directly counting sides, simply count the number of corners - it's the same. For each tile in a region, check the 4 potential corners around it:
-# If the horizontal and vertical neighbour are different to the region plant type, it's a corner. Or, if the horizontal and vertical neighbour are the same, but the diagonal neighbour is different, it's a corner
-#TODO
+    area = 0
+    sides = 0
+    for (x, y) in region:
+        area += 1
+        corners = 0
+        # Check the four potential corners around the tile
+        if x > 0 and y > 0 and grid[x-1][y] != grid[x][y] and grid[x][y-1] != grid[x][y]:
+            corners += 1
+        if x > 0 and y < len(grid[0])-1 and grid[x-1][y] != grid[x][y] and grid[x][y+1] != grid[x][y]:
+            corners += 1
+        if x < len(grid)-1 and y > 0 and grid[x+1][y] != grid[x][y] and grid[x][y-1] != grid[x][y]:
+            corners += 1
+        if x < len(grid)-1 and y < len(grid[0])-1 and grid[x+1][y] != grid[x][y] and grid[x][y+1] != grid[x][y]:
+            corners += 1
+        sides += corners
+    return area, sides
 
 
 def calculate_total_cost(grid, part):
