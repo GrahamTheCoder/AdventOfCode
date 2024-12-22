@@ -51,23 +51,30 @@ def calculate_area_and_perimeter(region, grid):
 
 
 def calculate_area_and_sides(region, grid):
-    area = 0
+    region_set = set(region)
+    plant_type = grid[region[0][0]]
+    area = len(region)
     sides = 0
-    for (x, y) in region:
-        area += 1
-        corners = 0
-        # Check the four potential corners around the tile
-        if x > 0 and y > 0 and grid[x-1][y] != grid[x][y] and grid[x][y-1] != grid[x][y]:
-            corners += 1
-        if x > 0 and y < len(grid[0])-1 and grid[x-1][y] != grid[x][y] and grid[x][y+1] != grid[x][y]:
-            corners += 1
-        if x < len(grid)-1 and y > 0 and grid[x+1][y] != grid[x][y] and grid[x][y-1] != grid[x][y]:
-            corners += 1
-        if x < len(grid)-1 and y < len(grid[0])-1 and grid[x+1][y] != grid[x][y] and grid[x][y+1] != grid[x][y]:
-            corners += 1
-        sides += corners
-    return area, sides
 
+    corners = [
+        ((0, -1), (-1, 0), (-1, -1)),  # top-left
+        ((0, 1), (-1, 0), (-1, 1)),   # top-right
+        ((0, -1), (1, 0), (1, -1)),   # bottom-left
+        ((0, 1), (1, 0), (1, 1))      # bottom-right
+    ]
+
+    for x, y in region:
+        for (hx, hy), (vx, vy), (dx, dy) in corners:
+            h = (x + hx, y + hy)
+            v = (x + vx, y + vy)
+            d = (x + dx, y + dy)
+            in_h = h in region_set
+            in_v = v in region_set
+            in_d = d in region_set
+            if (not in_h and not in_v) or (in_h and in_v and not in_d):
+                sides += 1
+
+    return area, sides
 
 def calculate_total_cost(grid, part):
     visited = set()
