@@ -51,29 +51,19 @@ def calculate_area_and_perimeter(region, grid):
 
 
 def calculate_area_and_sides(region, grid):
-    region_set = set(region)
-    plant_type = grid[region[0][0]]
     area = len(region)
     sides = 0
-
-    corners = [
-        ((0, -1), (-1, 0), (-1, -1)),  # top-left
-        ((0, 1), (-1, 0), (-1, 1)),   # top-right
-        ((0, -1), (1, 0), (1, -1)),   # bottom-left
-        ((0, 1), (1, 0), (1, 1))      # bottom-right
-    ]
-
-    for x, y in region:
-        for (hx, hy), (vx, vy), (dx, dy) in corners:
-            h = (x + hx, y + hy)
-            v = (x + vx, y + vy)
-            d = (x + dx, y + dy)
-            in_h = h in region_set
-            in_v = v in region_set
-            in_d = d in region_set
-            if (not in_h and not in_v) or (in_h and in_v and not in_d):
+    print(f"Region of area {area} and type {grid[region[0][0]][region[0][1]]}")
+    for x, y in sorted(region):
+        plant_type = grid[x][y]
+        for corner in get_corners((x, y)):
+            types = [grid[nx][ny] if is_on_grid(grid, (nx, ny)) else None for (nx, ny) in corner]
+            # If any three in a row are the same as plant_type, but the other two are not, then we have a corner
+            if types[0] != plant_type and types[2] != plant_type:
                 sides += 1
-
+            elif types[1] != plant_type and types[0] == plant_type and types[2] == plant_type:
+                sides += 1
+        
     return area, sides
 
 def calculate_total_cost(grid, part):
