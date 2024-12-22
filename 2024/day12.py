@@ -51,20 +51,10 @@ def calculate_area_and_perimeter(region, grid):
 
 
 def calculate_area_and_sides(region, grid):
-    area = len(region)
-    sides = 0
-    print(f"Region of area {area} and type {grid[region[0][0]][region[0][1]]}")
-    for x, y in sorted(region):
-        plant_type = grid[x][y]
-        for corner in get_corners((x, y)):
-            types = [grid[nx][ny] if is_on_grid(grid, (nx, ny)) else None for (nx, ny) in corner]
-            # If any three in a row are the same as plant_type, but the other two are not, then we have a corner
-            if types[0] != plant_type and types[2] != plant_type:
-                sides += 1
-            elif types[1] != plant_type and types[0] == plant_type and types[2] == plant_type:
-                sides += 1
-        
-    return area, sides
+# Pay special attention: Rather than directly counting sides, simply count the number of corners - it's the same. For each tile in a region, check the 4 potential corners around it:
+# If the horizontal and vertical neighbour are different to the region plant type, it's a corner. Or, if the horizontal and vertical neighbour are the same, but the diagonal neighbour is different, it's a corner
+#TODO
+
 
 def calculate_total_cost(grid, part):
     visited = set()
