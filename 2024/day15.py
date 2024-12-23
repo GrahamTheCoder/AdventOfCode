@@ -23,7 +23,7 @@ def solve(map_lines, move_sequence):
         for x, cell in enumerate(row):
             if cell == '@':
                 robot_pos = (x, y)
-            elif cell == 'O':
+            elif cell == 'O' or cell == '[' or cell == ']':
                 boxes.add((x, y))
     
     directions = {
@@ -59,11 +59,37 @@ def solve(map_lines, move_sequence):
     gps_sum = sum(100 * y + x for x, y in boxes)
     return gps_sum
 
+def scale_up_map(map_lines):
+    new_map_lines = []
+    for line in map_lines:
+        new_line = ""
+        for char in line:
+            if char == '#':
+                new_line += "##"
+            elif char == 'O':
+                new_line += "[]"
+            elif char == '.':
+                new_line += ".."
+            elif char == '@':
+                new_line += "@."
+        new_map_lines.append(new_line)
+    return new_map_lines
+
+def solve_part2(map_lines, move_sequence):
+    scaled_map_lines = scale_up_map(map_lines)
+    return solve(scaled_map_lines, move_sequence)
+
 def main():
     input_path = os.path.join('inputs', '15.txt')
     map_lines, move_sequence = parse_input(input_path)
-    result = solve(map_lines, move_sequence)
-    print(result)
+    
+    # Part 1
+    result_part1 = solve(map_lines, move_sequence)
+    print("Part 1:", result_part1)
+    
+    # Part 2
+    result_part2 = solve_part2(map_lines, move_sequence)
+    print("Part 2:", result_part2)
 
 if __name__ == "__main__":
     main()
