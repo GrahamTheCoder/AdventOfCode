@@ -41,17 +41,45 @@ def solve(map_lines, move_sequence):
             continue
         
         if new_robot in boxes:
+            # Gather all cells for wide boxes:
             box_positions = []
-            current_pos = new_robot
-            while current_pos in boxes:
-                box_positions.append(current_pos)
-                current_pos = (current_pos[0] + dx, current_pos[1] + dy)
-            
-            if grid[current_pos[1]][current_pos[0]] != '#' and current_pos not in boxes:
-                for pos in reversed(box_positions):
+            pending = [new_robot]
+            visited = set()
+            while pending:
+                pos = pending.pop()
+                if pos not in visited and pos in boxes:
+                    visited.add(pos)
+                    box_positions.append(pos)
+                    x2, y2 = pos[0], pos[1]
+                    # Check adjacent bracket if wide box
+                    # Horizontal pair
+                    if (x2 + 1, y2) in boxes:
+                        pending.append((x2 + 1, y2))
+                    if (x2 - 1, y2) in boxes:
+                        pending.append((x2 - 1, y2))
+
+                    # Vertical pair (rare but possible if squares placed vertically)
+                    if (x2, y2 + 1) in boxes:
+                        pending.append((x2, y2 + 1))
+                    if (x2, y2 - 1) in boxes:
+                        pending.append((x2, y2 - 1))
+
+            # Now push them in a chain
+            # ...existing code to detect free space...
+            new_pos_list = []
+            blocked = False
+            for pos in box_positions:
+                test_next = (pos[0] + dx, pos[1] + dy)
+                if grid[test_next[1]][test_next[0]] == '#' or test_next in boxes - set(box_positions):
+                    blocked = True
+                    break
+                new_pos_list.append(test_next)
+
+            if not blocked:
+                for pos in box_positions:
                     boxes.remove(pos)
-                    new_pos = (pos[0] + dx, pos[1] + dy)
-                    boxes.add(new_pos)
+                for pos in new_pos_list:
+                    boxes.add(pos)
                 robot_pos = new_robot
         else:
             robot_pos = new_robot
@@ -89,7 +117,7 @@ def main():
     
     # Part 2
     result_part2 = solve_part2(map_lines, move_sequence)
-    print("Part 2:", result_part2)
+    print("Part 2:", result_part2) # < 2697915
 
 if __name__ == "__main__":
     main()
