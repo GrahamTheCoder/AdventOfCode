@@ -1,7 +1,7 @@
 import math
 
 def parse_input(filepath: str):
-    """Reads the map from file and returns a list of lines and a freq->[(row,col)] dictionary."""
+    """Reads the map from file and returns lines plus freq-to-positions dictionary."""
     with open(filepath, 'r', encoding='utf-8') as f:
         lines = [line.rstrip('\n') for line in f]
     antennas = {}
@@ -11,70 +11,65 @@ def parse_input(filepath: str):
                 antennas.setdefault(ch, []).append((r, c))
     return lines, antennas
 
-def solve_puzzle_part1(lines, antennas):
-    """Part 1: Finds all unique in-bounds antinode positions for pairs of same-frequency antennas."""
-    rows, cols = len(lines), len(lines[0]) if lines else 0
-    antinodes = set()
+def in_bounds_factory(lines):
+    """Returns a function checking if row,col is in map bounds."""
+    rows = len(lines)
+    cols = len(lines[0]) if rows else 0
+    return lambda r, c: 0 <= r < rows and 0 <= c < cols
 
-    def in_bounds(r, c):
-        return 0 <= r < rows and 0 <= c < cols
-
+def pairwise_antenna_positions(antennas):
+    """Yields (freq, (r1, c1), (r2, c2)) for each distinct pair of same-frequency antennas."""
     for freq, positions in antennas.items():
+        if len(positions) < 2:
+            continue
         pos_count = len(positions)
         for i in range(pos_count):
             for j in range(i+1, pos_count):
-                r1, c1 = positions[i]
-                r2, c2 = positions[j]
-                # Each pair => two antinodes: 2B - A and 2A - B
-                candidates = [
-                    (2*r2 - r1, 2*c2 - c1),
-                    (2*r1 - r2, 2*c1 - c2),
-                ]
-                for (ar, ac) in candidates:
-                    if in_bounds(ar, ac):
-                        antinodes.add((ar, ac))
-    return len(antinodes)
+                yield freq, positions[i], positions[j]
+
+def compute_part1_antinodes(lines, antennas):
+    """Part 1: compute antinodes for each pair by doubling one point minus the other."""
+    in_bounds = in_bounds_factory(lines)
+    antinodes = set()
+    for freq, (r1, c1), (r2, c2) in pairwise_antenna_positions(antennas):
+        candidates = [(2*r2 - r1, 2*c2 - c1), (2*r1 - r2, 2*c1 - c2)]
+        for (ar, ac) in candidates:
+            if in_bounds(ar, ac):
+                antinodes.add((ar, ac))
+    return antinodes
+
+def compute_part2_antinodes(lines, antennas):
+    """
+    Part 2: for each pair, add every collinear point in both directions.
+    """
+    in_bounds = in_bounds_factory(lines)
+    antinodes = set()
+    for freq, (r1, c1), (r2, c2) in pairwise_antenna_positions(antennas):
+        dr, dc = r2 - r1, c2 - c1
+        g = math.gcd(dr, dc)
+        step_r = dr // g
+        step_c = dc // g
+
+        # forward
+        rr, cc = r1, c1
+        while in_bounds(rr, cc):
+            antinodes.add((rr, cc))
+            rr += step_r
+            cc += step_c
+
+        # backward
+        rr, cc = r1, c1
+        while in_bounds(rr, cc):
+            antinodes.add((rr, cc))
+            rr -= step_r
+            cc -= step_c
+    return antinodes
+
+def solve_puzzle_part1(lines, antennas):
+    return len(compute_part1_antinodes(lines, antennas))
 
 def solve_puzzle_part2(lines, antennas):
-    """
-    Part 2: An antinode occurs at any grid position exactly in line
-    with at least two antennas of the same frequency, regardless of distance.
-    """
-    rows, cols = len(lines), len(lines[0]) if lines else 0
-    antinodes = set()
-
-    def in_bounds(r, c):
-        return 0 <= r < rows and 0 <= c < cols
-
-    for freq, positions in antennas.items():
-        # If only one antenna for this freq, no antinodes here
-        if len(positions) < 2:
-            continue
-        # For each pair of antennas, add all collinear in-bounds points
-        for i in range(len(positions)):
-            for j in range(i+1, len(positions)):
-                r1, c1 = positions[i]
-                r2, c2 = positions[j]
-                dr = r2 - r1
-                dc = c2 - c1
-                g = math.gcd(dr, dc)
-                step_r = dr // g
-                step_c = dc // g
-
-                # Explore in the "forward" direction from p1
-                rr, cc = r1, c1
-                while in_bounds(rr, cc):
-                    antinodes.add((rr, cc))
-                    rr += step_r
-                    cc += step_c
-
-                # Explore in the "backward" direction from p1
-                rr, cc = r1, c1
-                while in_bounds(rr, cc):
-                    antinodes.add((rr, cc))
-                    rr -= step_r
-                    cc -= step_c
-    return len(antinodes)
+    return len(compute_part2_antinodes(lines, antennas))
 
 def main():
     lines, antennas = parse_input("inputs/08.txt")
