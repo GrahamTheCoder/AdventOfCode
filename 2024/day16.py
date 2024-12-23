@@ -32,7 +32,7 @@ def solve_maze(maze):
             while (r, c) != start:
                 path.append((r, c))
                 if (r, c) in parent:
-                    r, c = parent[(r, c)]
+                    r, c, dir_idx = parent[(r, c)]
                 else:
                     break
             path.append(start)
@@ -48,8 +48,8 @@ def solve_maze(maze):
                 new_cost = cost + move_cost
                 if i != dir_idx:
                     new_cost += direction_cost
-                if (nr, nc) not in parent or new_cost < parent[(nr, nc)][0]:
-                    parent[(nr, nc)] = (r, c)
+                if (nr, nc, i) not in parent or new_cost < parent[(nr, nc, i)][0]:
+                    parent[(nr, nc, i)] = (cost, (r, c), dir_idx)
                     heapq.heappush(pq, (new_cost, (nr, nc), i))
 
     return float('inf'), []
