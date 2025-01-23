@@ -1,58 +1,33 @@
-from collections import deque
+from functools import lru_cache
 
-def parse_input(file_path):
-    with open(file_path, 'r') as file:
-        stones = list(map(int, file.readline().strip().split()))
-    return stones
+def parse_input():
+    from pathlib import Path
+    input_file = Path(__file__).parent / "inputs" / "11.txt"
+    with open(input_file) as f:
+        data = list(map(int, f.read().split()))
+    return data
 
-def split_number(n):
-    digits = []
-    while n > 0:
-        digits.append(n % 10)
-        n //= 10
-    digits.reverse()
-    half_len = len(digits) // 2
-    left_half = 0
-    right_half = 0
-    for i in range(half_len):
-        left_half = left_half * 10 + digits[i]
-    for i in range(half_len, len(digits)):
-        right_half = right_half * 10 + digits[i]
-    return left_half, right_half
-
-def transform_stones(stones, memo):
-    new_stones = deque()
-    while stones:
-        stone = stones.popleft()
-        if stone in memo:
-            new_stones.extend(memo[stone])
-        else:
-            if stone == 0:
-                transformed = [1]
-            else:
-                num_digits = len(str(stone))
-                if num_digits % 2 == 0:
-                    left_half, right_half = split_number(stone)
-                    transformed = [left_half, right_half]
-                else:
-                    transformed = [stone * 2024]
-            memo[stone] = transformed
-            new_stones.extend(transformed)
-    return new_stones
-
-def process_stones(stones, steps):
-    stones = deque(stones)
-    memo = {}
-    for _ in range(steps):
-        stones = transform_stones(stones, memo)
-    return len(stones)
+@lru_cache(maxsize=None)
+def f(x: int, t: int) -> int:
+    if t == 0:
+        return 1
+    if x == 0:
+        return f(1, t-1)
+    s = str(x)
+    l = len(s)
+    if l % 2 == 0:
+        half = l // 2
+        left = int(s[:half])
+        right = int(s[half:])
+        return f(left, t-1) + f(right, t-1)
+    else:
+        y = x * 2024
+        return f(y, t-1)
 
 def main():
-    stones = parse_input('inputs/11.txt')
-    result_25 = process_stones(stones, 25)
-    print(f'Number of stones after 25 blinks: {result_25}')
-    result_75 = process_stones(stones, 75)
-    print(f'Number of stones after 75 blinks: {result_75}')
+    stones = parse_input()
+    total = sum(f(x, 75) for x in stones)
+    print(total)
 
 if __name__ == "__main__":
     main()
